@@ -12,7 +12,12 @@ body {font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align:ce
 h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;}
 </style>
 
-<script src="mandelbrot.js"></script>
+<script type="module">
+    import mandelbrot from "./mandelbrot.js";
+
+    const canvas = document.getElementById("viewer");
+    const context = canvas.getContext("2d");
+</script>
 
 </head>
 
