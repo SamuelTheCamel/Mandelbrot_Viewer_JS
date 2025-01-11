@@ -12,11 +12,14 @@ body {font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align:ce
 h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;}
 </style>
 
-<script type="module">
-    import mandelbrot from "./mandelbrot.js";
+<script src="https://unpkg.com/mathjs@14.0.1/lib/browser/math.js"></script>
 
+<script src="mandelbrot.js">
+
+    // initialize canvas
     const canvas = document.getElementById("viewer");
     const context = canvas.getContext("2d");
+
 </script>
 
 </head>
@@ -26,5 +29,12 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
 <h1> Mandelbrot Viewer </h1>
 
 <canvas id="viewer" style="width:75%; height:75%; border:1px solid black"></canvas>
+
+<hr>
+
+<div>
+    <button id="test_button" onclick="testFunction()"> Test </button>
+</div>
+
 
 </body>
