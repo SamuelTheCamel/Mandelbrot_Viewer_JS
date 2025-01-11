@@ -6,5 +6,5 @@ This is yet another Mandelbrot Viewer, this time written in JavaScript so that i
 
 (More information will be included in the HTML document)
 
-Modules used:
+Libraries used:
 - math.js
