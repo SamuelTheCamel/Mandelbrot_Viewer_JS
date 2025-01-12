@@ -153,12 +153,13 @@ function drawPixel(context, parameters, pixel_x, pixel_y, num_iters) {
     context.fillRect(pixel_x, pixel_y, parameters.pixel_size, parameters.pixel_size);
 }
 
-async function drawFractal(canvas, context, parameters) {
+function drawFractal(canvas, context, parameters) {
     /*
     Draws the desired fractal on the given canvas with the given context.
     To get the context of a canvas, use canvas.getContext("2d").
     The context must be 2D.
     */
+    
     let scale = 1 / Math.exp(parameters.zoom);
     let height = canvas.height;
     let width = canvas.width;
