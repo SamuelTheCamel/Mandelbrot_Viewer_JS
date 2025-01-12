@@ -93,7 +93,7 @@ function checkEscapeReal(escape_condition, x, y) {
     return Boolean(eval_node.evaluate({x:x, y:y}));
 }
 
-function calcEscapeIterationsComplex(parameters, c) {
+async function calcEscapeIterationsComplex(parameters, c) {
     /*
     Calculates the number of iterations to escape from the given starting value c. (for complex mode)
     If it escapes, this returns the number of iterations (a positive integer).
@@ -112,7 +112,7 @@ function calcEscapeIterationsComplex(parameters, c) {
     }
 }
 
-function calcEscapeIterationsReal(parameters, cx, cy) {
+async function calcEscapeIterationsReal(parameters, cx, cy) {
     /*
     Calculates the number of iterations to escape from the given starting point (cx, cy). (for real mode)
     If it escapes, this returns the number of iterations (a positive integer).
@@ -134,7 +134,26 @@ function calcEscapeIterationsReal(parameters, cx, cy) {
     }
 }
 
-function drawFractal(canvas, context, parameters) {
+function drawPixel(context, parameters, pixel_x, pixel_y, num_iters) {
+    /*
+    Draws a single pixel at the given location.
+    */
+
+    if (isFinite(num_iters)) {
+        let hue = num_iters * 0.1 * parameters.color_depth;
+        context.fillStyle = "hsl(" + hue + ", 100%, 50%)";
+    } else {
+        if (isNaN(num_iters)) {
+            context.fillStyle = "hsl(0, 0%, 50%)";
+        } else {
+            context.fillStyle = "hsl(0, 100%, 0%)";
+        }
+    }
+
+    context.fillRect(pixel_x, pixel_y, parameters.pixel_size, parameters.pixel_size);
+}
+
+async function drawFractal(canvas, context, parameters) {
     /*
     Draws the desired fractal on the given canvas with the given context.
     To get the context of a canvas, use canvas.getContext("2d").
@@ -144,6 +163,27 @@ function drawFractal(canvas, context, parameters) {
     let height = canvas.height;
     let width = canvas.width;
 
+    for (let pixel_y = 0; pixel_y < height; pixel_y += parameters.pixel_size) {
+        for (let pixel_x = 0; pixel_x < width; pixel_x += parameters.pixel_size) {
+            if (parameters.complex_mode) {
+                let c_real = (pixel_x - width / 2) * scale + parameters.center_x;
+                let c_imag = - (pixel_y - height / 2) * scale + parameters.center_y;
+                calcEscapeIterationsComplex(parameters, math.complex(c_real, c_imag)).then(
+                    function (num_iters) {drawPixel(context, parameters, pixel_x, pixel_y, num_iters)},
+                    function (error) {drawPixel(context, parameters, pixel_x, pixel_y, NaN)}
+                );
+            } else {
+                let cx = (pixel_x - width / 2) * scale + parameters.center_x;
+                let cy = - (pixel_y - width / 2) * scale + parameters.center_y;
+                calcEscapeIterationsReal(parameters, cx, cy).then(
+                    function (num_iters) {drawPixel(context, parameters, pixel_x, pixel_y, num_iters)},
+                    function (error) {drawPixel(context, parameters, pixel_x, pixel_y, NaN)}
+                );
+            }
+        }
+    }
+
+    /*
     // Lots of repeated code, but it's in the name of optimization!
     if (parameters.complex_mode) {
         for (let pixel_y = 0; pixel_y < height; pixel_y += parameters.pixel_size) {
@@ -182,7 +222,7 @@ function drawFractal(canvas, context, parameters) {
             }
         }
     }
-    
+    */
 };
 
 function testFunction() {
