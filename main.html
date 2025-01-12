@@ -12,13 +12,7 @@ body {font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align:ce
 h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;}
 </style>
 
-<script src="mandelbrot.js">
-
-    // initialize canvas
-    const canvas = document.getElementById("viewer");
-    const context = canvas.getContext("2d");
-
-</script>
+<script src="mandelbrot.js"></script>
 
 </head>
 
@@ -31,8 +25,23 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
 <hr>
 
 <div>
-    <button id="test_button" onclick="testFunction()"> Test </button>
+    <p id="status"> Click "Refresh" to see the fractal with your desired settings. </p>
+    <button id="refresh_button"> Refresh </button>
 </div>
 
+<script>
+
+    // initialize canvas
+    const canvas = document.getElementById("viewer");
+    const context = canvas.getContext("2d");
+
+    document.getElementById("refresh_button").addEventListener("click", () => {
+        let parameters = new DrawParameters();
+        parameters.max_iter = 300;
+        parameters.pixel_size = 2;
+        drawFractal(canvas, context, parameters);
+    });
+
+</script>
 
 </body>
