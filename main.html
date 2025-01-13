@@ -34,11 +34,33 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
     // initialize canvas
     const canvas = document.getElementById("viewer");
     const context = canvas.getContext("2d");
-    let parameters = null;
+    let parameters;
 
-    function refreshCanvas() {
+    let controller;
+
+    async function refreshCanvas() {
+        /*
+        Draws the fractal with the user-specified properties on the canvas.
+        Does a fast draw first with faster parameters.
+        */
+
+        // abort function if currently running
+        if (controller) {
+            controller.abort();
+        }
+
+        // allow function to be aborted
+        controller = new AbortController();
+        const signal = controller.signal;
+
         parameters ??= new DrawParameters();
-        drawFractal(canvas, context, parameters);
+
+        let fast_parameters = {...parameters}; // create shallow copy of parameters
+        fast_parameters.pixel_size = 6;
+        fast_parameters.max_iter = 100;
+
+        await drawFractal(canvas, context, fast_parameters, signal);
+        await drawFractal(canvas, context, parameters, signal);
     }
 
     document.getElementById("refresh_button").addEventListener("click", refreshCanvas);

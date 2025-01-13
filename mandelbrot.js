@@ -38,7 +38,7 @@ function DrawParameters(center_x, center_y, zoom, max_iter, pixel_size, color_de
     zoom ??= 5;
     max_iter ??= 200;
     pixel_size ??= 2;
-    color_depth ??= 10;
+    color_depth ??= 20;
     complex_mode ??= true;
     recursive_function_z ??= math.parse("z^2 + c");
     recursive_function_x ??= math.parse("x^2 - y^2 + cx");
@@ -153,13 +153,14 @@ function drawPixel(context, parameters, pixel_x, pixel_y, num_iters) {
     context.fillRect(pixel_x, pixel_y, parameters.pixel_size, parameters.pixel_size);
 }
 
-function drawFractal(canvas, context, parameters) {
+async function drawFractal(canvas, context, parameters, signal) {
     /*
     Draws the desired fractal on the given canvas with the given context.
     To get the context of a canvas, use canvas.getContext("2d").
     The context must be 2D.
+    Signal is used for aborting the process.
     */
-    
+
     let scale = 1 / Math.exp(parameters.zoom);
     let height = canvas.height;
     let width = canvas.width;
@@ -167,6 +168,11 @@ function drawFractal(canvas, context, parameters) {
     for (let pixel_y = 0; pixel_y < height; pixel_y += parameters.pixel_size) {
         requestIdleCallback(function() { // allows browser to render previously completed line
             for (let pixel_x = 0; pixel_x < width; pixel_x += parameters.pixel_size) {
+
+                if (signal.aborted) { // check for abort signal
+                    return
+                }
+
                 if (parameters.complex_mode) {
                     let c_real = (pixel_x - width / 2) * scale + parameters.center_x;
                     let c_imag = - (pixel_y - height / 2) * scale + parameters.center_y;
@@ -176,7 +182,7 @@ function drawFractal(canvas, context, parameters) {
                     );
                 } else {
                     let cx = (pixel_x - width / 2) * scale + parameters.center_x;
-                    let cy = - (pixel_y - width / 2) * scale + parameters.center_y;
+                    let cy = - (pixel_y - height / 2) * scale + parameters.center_y;
                     calcEscapeIterationsReal(parameters, cx, cy).then(
                         function (num_iters) {drawPixel(context, parameters, pixel_x, pixel_y, num_iters)},
                         function (error) {drawPixel(context, parameters, pixel_x, pixel_y, NaN)}
