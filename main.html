@@ -25,8 +25,9 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
 <hr>
 
 <div>
-    <p id="status"> Click "Refresh" to see the fractal with your desired settings. </p>
     <button id="refresh_button"> Refresh </button>
+    <button id="reset_button"> Reset </button>
+    <button id="stop_button"> Stop </button>
 </div>
 
 <script>
@@ -57,13 +58,86 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
 
         let fast_parameters = {...parameters}; // create shallow copy of parameters
         fast_parameters.pixel_size = 6;
-        fast_parameters.max_iter = 100;
+        if (parameters.max_iter > 100) {
+            fast_parameters.max_iter = 100;
+        }
 
-        await drawFractal(canvas, context, fast_parameters, signal);
+        if (parameters.pixel_size < 6) {
+            await drawFractal(canvas, context, fast_parameters, signal); // draw low quality version first
+        }
         await drawFractal(canvas, context, parameters, signal);
     }
 
+    setTimeout(refreshCanvas, 100)
+
+    // EVENT HANDLERS
+
     document.getElementById("refresh_button").addEventListener("click", refreshCanvas);
+
+    document.getElementById("reset_button").addEventListener("click", function() {
+        parameters.center_x = 0;
+        parameters.center_y = 0;
+        parameters.zoom = 5;
+        refreshCanvas();
+    })
+
+    document.getElementById("stop_button").addEventListener("click", function() {
+        if (controller) {
+            controller.abort();
+        }
+    })
+
+    canvas.addEventListener("wheel", function(event) {
+        event.preventDefault(); // prevent default scroll behavior while mouse is over canvas
+
+        const canvas_bounds = canvas.getBoundingClientRect();
+        const mid_x = (canvas_bounds.left + canvas_bounds.right) / 2;
+        const mid_y = (canvas_bounds.top + canvas_bounds.bottom) / 2;
+
+        const scale = 1 / Math.exp(parameters.zoom);
+        const canvas_scale_x = canvas.width / (canvas_bounds.right - canvas_bounds.left);
+        const canvas_scale_y = canvas.height / (canvas_bounds.bottom - canvas_bounds.top);
+
+        // get mouse coordinates relative to the middle of the canvas in fractal-space units
+        const mouse_x = (event.clientX - mid_x) * canvas_scale_x * scale;
+        const mouse_y = - (event.clientY - mid_y) * canvas_scale_y * scale;
+
+        const zoom_amount = 0.5;
+        const scale_amount = Math.exp(zoom_amount); // proportion
+
+        if (event.deltaY < 0) {
+            parameters.zoom += zoom_amount;
+            parameters.center_x += mouse_x * scale_amount - mouse_x;
+            parameters.center_y += mouse_y * scale_amount - mouse_y;
+        } else {
+            parameters.zoom -= zoom_amount;
+            parameters.center_x += mouse_x / scale_amount - mouse_x;
+            parameters.center_y += mouse_y / scale_amount - mouse_y;
+        }
+
+        refreshCanvas();
+    })
+
+    canvas.addEventListener("click", function(event) {
+
+        const canvas_bounds = canvas.getBoundingClientRect();
+        const mid_x = (canvas_bounds.left + canvas_bounds.right) / 2;
+        const mid_y = (canvas_bounds.top + canvas_bounds.bottom) / 2;
+
+        const scale = 1 / Math.exp(parameters.zoom);
+        const canvas_scale_x = canvas.width / (canvas_bounds.right - canvas_bounds.left);
+        const canvas_scale_y = canvas.height / (canvas_bounds.bottom - canvas_bounds.top);
+
+        // get mouse coordinates relative to the middle of the canvas in fractal-space units
+        const mouse_x = (event.clientX - mid_x) * canvas_scale_x * scale;
+        const mouse_y = - (event.clientY - mid_y) * canvas_scale_y * scale;
+
+        parameters.center_x += mouse_x;
+        parameters.center_y += mouse_y;
+
+        refreshCanvas();
+
+    })
 
 </script>
 

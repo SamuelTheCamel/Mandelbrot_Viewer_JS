@@ -141,7 +141,7 @@ function drawPixel(context, parameters, pixel_x, pixel_y, num_iters) {
 
     if (isFinite(num_iters)) {
         let hue = num_iters * 0.1 * parameters.color_depth;
-        context.fillStyle = "hsl(" + hue + ", 100%, 50%)";
+        context.fillStyle = "hsl(" + hue % 360 + ", 100%, 50%)";
     } else {
         if (isNaN(num_iters)) {
             context.fillStyle = "hsl(0, 0%, 50%)";
@@ -161,9 +161,12 @@ async function drawFractal(canvas, context, parameters, signal) {
     Signal is used for aborting the process.
     */
 
-    let scale = 1 / Math.exp(parameters.zoom);
-    let height = canvas.height;
-    let width = canvas.width;
+    const scale = 1 / Math.exp(parameters.zoom);
+
+    const width = canvas.width
+    const height = canvas.height
+    const mid_x = (canvas.width) / 2;
+    const mid_y = (canvas.height) / 2;
 
     for (let pixel_y = 0; pixel_y < height; pixel_y += parameters.pixel_size) {
         requestIdleCallback(function() { // allows browser to render previously completed line
@@ -174,15 +177,15 @@ async function drawFractal(canvas, context, parameters, signal) {
                 }
 
                 if (parameters.complex_mode) {
-                    let c_real = (pixel_x - width / 2) * scale + parameters.center_x;
-                    let c_imag = - (pixel_y - height / 2) * scale + parameters.center_y;
+                    let c_real = (pixel_x - mid_x) * scale + parameters.center_x;
+                    let c_imag = - (pixel_y - mid_y) * scale + parameters.center_y;
                     calcEscapeIterationsComplex(parameters, math.complex(c_real, c_imag)).then(
                         function (num_iters) {drawPixel(context, parameters, pixel_x, pixel_y, num_iters)},
                         function (error) {drawPixel(context, parameters, pixel_x, pixel_y, NaN)}
                     );
                 } else {
-                    let cx = (pixel_x - width / 2) * scale + parameters.center_x;
-                    let cy = - (pixel_y - height / 2) * scale + parameters.center_y;
+                    let cx = (pixel_x - mid_x) * scale + parameters.center_x;
+                    let cy = - (pixel_y - mid_y) * scale + parameters.center_y;
                     calcEscapeIterationsReal(parameters, cx, cy).then(
                         function (num_iters) {drawPixel(context, parameters, pixel_x, pixel_y, num_iters)},
                         function (error) {drawPixel(context, parameters, pixel_x, pixel_y, NaN)}
@@ -191,47 +194,6 @@ async function drawFractal(canvas, context, parameters, signal) {
             }
         });
     }
-
-    /*
-    // Lots of repeated code, but it's in the name of optimization!
-    if (parameters.complex_mode) {
-        for (let pixel_y = 0; pixel_y < height; pixel_y += parameters.pixel_size) {
-            for (let pixel_x = 0; pixel_x < width; pixel_x += parameters.pixel_size) {
-
-                let c_real = (pixel_x - width / 2) * scale + parameters.center_x;
-                let c_imag = - (pixel_y - height / 2) * scale + parameters.center_y;
-                let num_iters = calcEscapeIterationsComplex(parameters, math.complex(c_real, c_imag));
-                
-                if (isFinite(num_iters)) {
-                    let hue = num_iters * 0.1 * parameters.color_depth;
-                    context.fillStyle = "hsl(" + hue + ", 100%, 50%)";
-                } else {
-                    context.fillStyle = "hsl(0, 100%, 0%)";
-                }
-
-                context.fillRect(pixel_x, pixel_y, parameters.pixel_size, parameters.pixel_size);
-            }
-        }
-    } else {
-        for (let pixel_y = 0; pixel_y < height; pixel_y += parameters.pixel_size) {
-            for (let pixel_x = 0; pixel_x < width; pixel_x += parameters.pixel_size) {
-
-                let cx = (pixel_x - width / 2) * scale + parameters.center_x;
-                let cy = - (pixel_y - width / 2) * scale + parameters.center_y;
-                let num_iters = calcEscapeIterationsReal(parameters, cx, cy);
-                
-                if (isFinite(num_iters)) {
-                    let hue = num_iters * 0.1 * parameters.color_depth;
-                    context.fillStyle = "hsl(" + hue + ", 100%, 50%)";
-                } else {
-                    context.fillStyle = "hsl(0, 100%, 0%)";
-                }
-
-                context.fillRect(pixel_x, pixel_y, parameters.pixel_size, parameters.pixel_size);
-            }
-        }
-    }
-    */
 };
 
 function testFunction() {
