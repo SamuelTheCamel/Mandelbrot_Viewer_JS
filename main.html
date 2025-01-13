@@ -30,17 +30,18 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
 </div>
 
 <script>
-
+    
     // initialize canvas
     const canvas = document.getElementById("viewer");
     const context = canvas.getContext("2d");
+    let parameters = null;
 
-    document.getElementById("refresh_button").addEventListener("click", function() {
-        let parameters = new DrawParameters();
-        parameters.max_iter = 500;
-        parameters.pixel_size = 2;
+    function refreshCanvas() {
+        parameters ??= new DrawParameters();
         drawFractal(canvas, context, parameters);
-    });
+    }
+
+    document.getElementById("refresh_button").addEventListener("click", refreshCanvas);
 
 </script>
 

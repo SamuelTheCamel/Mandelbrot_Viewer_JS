@@ -35,10 +35,10 @@ function DrawParameters(center_x, center_y, zoom, max_iter, pixel_size, color_de
     // Default values
     center_x ??= 0;
     center_y ??= 0;
-    zoom ??= 4;
-    max_iter ??= 1000;
-    pixel_size ??= 1;
-    color_depth ??= 6;
+    zoom ??= 5;
+    max_iter ??= 200;
+    pixel_size ??= 2;
+    color_depth ??= 10;
     complex_mode ??= true;
     recursive_function_z ??= math.parse("z^2 + c");
     recursive_function_x ??= math.parse("x^2 - y^2 + cx");
@@ -165,23 +165,25 @@ function drawFractal(canvas, context, parameters) {
     let width = canvas.width;
 
     for (let pixel_y = 0; pixel_y < height; pixel_y += parameters.pixel_size) {
-        for (let pixel_x = 0; pixel_x < width; pixel_x += parameters.pixel_size) {
-            if (parameters.complex_mode) {
-                let c_real = (pixel_x - width / 2) * scale + parameters.center_x;
-                let c_imag = - (pixel_y - height / 2) * scale + parameters.center_y;
-                calcEscapeIterationsComplex(parameters, math.complex(c_real, c_imag)).then(
-                    function (num_iters) {drawPixel(context, parameters, pixel_x, pixel_y, num_iters)},
-                    function (error) {drawPixel(context, parameters, pixel_x, pixel_y, NaN)}
-                );
-            } else {
-                let cx = (pixel_x - width / 2) * scale + parameters.center_x;
-                let cy = - (pixel_y - width / 2) * scale + parameters.center_y;
-                calcEscapeIterationsReal(parameters, cx, cy).then(
-                    function (num_iters) {drawPixel(context, parameters, pixel_x, pixel_y, num_iters)},
-                    function (error) {drawPixel(context, parameters, pixel_x, pixel_y, NaN)}
-                );
+        requestIdleCallback(function() { // allows browser to render previously completed line
+            for (let pixel_x = 0; pixel_x < width; pixel_x += parameters.pixel_size) {
+                if (parameters.complex_mode) {
+                    let c_real = (pixel_x - width / 2) * scale + parameters.center_x;
+                    let c_imag = - (pixel_y - height / 2) * scale + parameters.center_y;
+                    calcEscapeIterationsComplex(parameters, math.complex(c_real, c_imag)).then(
+                        function (num_iters) {drawPixel(context, parameters, pixel_x, pixel_y, num_iters)},
+                        function (error) {drawPixel(context, parameters, pixel_x, pixel_y, NaN)}
+                    );
+                } else {
+                    let cx = (pixel_x - width / 2) * scale + parameters.center_x;
+                    let cy = - (pixel_y - width / 2) * scale + parameters.center_y;
+                    calcEscapeIterationsReal(parameters, cx, cy).then(
+                        function (num_iters) {drawPixel(context, parameters, pixel_x, pixel_y, num_iters)},
+                        function (error) {drawPixel(context, parameters, pixel_x, pixel_y, NaN)}
+                    );
+                }
             }
-        }
+        });
     }
 
     /*
