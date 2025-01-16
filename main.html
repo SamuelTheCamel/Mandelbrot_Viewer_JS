@@ -5,11 +5,12 @@
 
 <head>
 
-<title> Mandelbrot Viewer </title>
+<title> Customizable Mandelbrot Viewer </title>
 
 <style>
 body {font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align:center}
 h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;}
+.settings_div {margin: 5px;}
 </style>
 
 <script src="mandelbrot.js"></script>
@@ -18,7 +19,7 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
 
 <body>
 
-<h1> Mandelbrot Viewer </h1>
+<h1> Customizable Mandelbrot Viewer </h1>
 
 <canvas id="viewer" style="width:480px; height:360px; border:1px solid black" width="480" height="360"></canvas>
 
@@ -30,6 +31,63 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
     <button id="stop_button"> Stop </button>
 </div>
 
+<hr>
+
+<div>
+    <h2> Settings </h2>
+
+    <div style="display: flex; justify-content: center;">
+
+        <div class="settings_div">
+            <label for="pixel_size_slider"> Pixel Size: <span id="pixel_size_value"> 3 </span></label> <br>
+            <input type="range" min="1" max="10" value="3" class="slider" id="pixel_size_slider">
+        </div>
+
+        <div class="settings_div">
+            <label for="max_iter_slider"> Max Iterations: <span id="max_iter_value"> 200 </span></label> <br>
+            <input type="range" min="1" max="1000" value="200" class="slider" id="max_iter_slider">
+        </div>
+
+        <div class="settings_div">
+            <label for="color_depth_slider"> Color Depth: <span id="color_depth_value"> 20 </span></label> <br>
+            <input type="range" min="1" max="100" value="20" class="slider" id="color_depth_slider">
+        </div>
+
+    </div>
+
+    <div style="display: flex; justify-content: center;">
+
+        <div class="settings_div">
+            <button id="mode_button"> Complex Mode </button>
+        </div>
+
+        <div id="rec_func_z_div" class="settings_div">
+            <label for="rec_func_z_input"> f(z) = </label>
+            <input type="text" id="rec_func_z_input" value="z^2 + c">
+        </div>
+
+        <div id="rec_func_x_div" class="settings_div" style="display:none">
+            <label for="rec_func_x_input"> x' = </label>
+            <input type="text" id="rec_func_x_input" value="x^2 - y^2 + cx">
+        </div>
+        
+        <div id="rec_func_y_div" class="settings_div" style="display:none">
+            <label for="rec_func_y_input"> y' = </label>
+            <input type="text" id="rec_func_y_input" value="2*x*y + cy">
+        </div>
+
+        <div class="settings_div">
+            <label for="esc_cond_auto_button"> Escape Condition: </label>
+            <button id="esc_cond_auto_button"> Auto </button>
+            <input type="text" id="esc_cond_input" disabled="true" value="abs(z) > 2">
+        </div>
+
+    </div>
+
+</div>
+
+
+
 <script>
     
     // initialize canvas
@@ -38,6 +96,8 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
     let parameters;
 
     let controller;
+
+    let auto_esc_cond = true;
 
     async function refreshCanvas() {
         /*
@@ -56,7 +116,20 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
 
         parameters ??= new DrawParameters();
 
-        let fast_parameters = {...parameters}; // create shallow copy of parameters
+        // update expressions
+
+        const rec_func_x_input = document.getElementById("rec_func_x_input");
+        const rec_func_y_input = document.getElementById("rec_func_y_input");
+        const rec_func_z_input = document.getElementById("rec_func_z_input");
+        const esc_cond_input = document.getElementById("esc_cond_input");
+
+        parameters.recursive_function_x = math.parse(rec_func_x_input.value);
+        parameters.recursive_function_y = math.parse(rec_func_y_input.value);
+        parameters.recursive_function_z = math.parse(rec_func_z_input.value);
+        parameters.escape_condition = math.parse(esc_cond_input.value);
+
+        // create parameters for faster draw that runs before the main draw
+        const fast_parameters = {...parameters}; // create shallow copy of parameters
         fast_parameters.pixel_size = 6;
         if (parameters.max_iter > 100) {
             fast_parameters.max_iter = 100;
@@ -65,7 +138,9 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
         if (parameters.pixel_size < 6) {
             await drawFractal(canvas, context, fast_parameters, signal); // draw low quality version first
         }
-        await drawFractal(canvas, context, parameters, signal);
+
+        const parameters_copy = {...parameters}; // create copy of parameters to prevent issues from the user changing settings during drawing
+        await drawFractal(canvas, context, parameters_copy, signal);
     }
 
     setTimeout(refreshCanvas, 100)
@@ -87,7 +162,87 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
         }
     })
 
+    /*
+    const pixel_size_slider = document.getElementById("pixel_size_slider");
+    const pixel_size_value = document.getElementById("pixel_size_value");
+    const max_iter_slider = document.getElementById("max_iter_slider");
+    const max_iter_value = document.getElementById("max_iter_value");
+    const color_depth_slider = document.getElementById("color_depth_slider");
+    const color_depth_value = document.getElementById("color_depth_value");
+    */
+    
+
+    document.getElementById("pixel_size_slider").oninput = function() {
+        document.getElementById("pixel_size_value").innerHTML = this.value;
+        parameters.pixel_size = Number(this.value);
+    }
+
+    document.getElementById("max_iter_slider").oninput = function() {
+        document.getElementById("max_iter_value").innerHTML = this.value;
+        parameters.max_iter = Number(this.value);
+    }
+
+    document.getElementById("color_depth_slider").oninput = function() {
+        document.getElementById("color_depth_value").innerHTML = this.value;
+        parameters.color_depth = Number(this.value);
+    }
+
+    document.getElementById("mode_button").addEventListener("click", function() {
+
+        const default_complex_esc_cond = "abs(z) > 100";
+        const default_real_esc_cond = "x^2 + y^2 > 10000";
+
+        if (parameters.complex_mode) {
+
+            parameters.complex_mode = false;
+            this.innerHTML = "Real Mode";
+
+            document.getElementById("rec_func_z_div").setAttribute("style","display:none");
+            document.getElementById("rec_func_x_div").setAttribute("style","display:block");
+            document.getElementById("rec_func_y_div").setAttribute("style","display:block");
+            
+
+            if (auto_esc_cond) {
+                parameters.escape_condition = default_real_esc_cond;
+                document.getElementById("esc_cond_input").value = default_real_esc_cond;
+            }
+
+        } else {
+            parameters.complex_mode = true;
+            this.innerHTML = "Complex Mode";
+
+            document.getElementById("rec_func_z_div").setAttribute("style","display:block");
+            document.getElementById("rec_func_x_div").setAttribute("style","display:none");
+            document.getElementById("rec_func_y_div").setAttribute("style","display:none");
+
+            if (auto_esc_cond) {
+                parameters.escape_condition = default_complex_esc_cond;
+                document.getElementById("esc_cond_input").value = default_complex_esc_cond;
+            }
+        }
+    })
+
+    document.getElementById("esc_cond_auto_button").addEventListener("click", function() {
+        if (auto_esc_cond) {
+
+            auto_esc_cond = false;
+            this.innerHTML = "Custom"
+
+            document.getElementById("esc_cond_input").disabled = false;
+
+        } else {
+
+            auto_esc_cond = true;
+            this.innerHTML = "Auto"
+
+            document.getElementById("esc_cond_input").disabled = true;
+
+        }
+    })
+
     canvas.addEventListener("wheel", function(event) {
+        // Zooms in and out when the user spins the scroll wheel
+
         event.preventDefault(); // prevent default scroll behavior while mouse is over canvas
 
         const canvas_bounds = canvas.getBoundingClientRect();
@@ -119,6 +274,7 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
     })
 
     canvas.addEventListener("click", function(event) {
+        // Centers the image at the click location
 
         const canvas_bounds = canvas.getBoundingClientRect();
         const mid_x = (canvas_bounds.left + canvas_bounds.right) / 2;

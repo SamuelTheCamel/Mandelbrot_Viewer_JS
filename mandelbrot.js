@@ -37,7 +37,7 @@ function DrawParameters(center_x, center_y, zoom, max_iter, pixel_size, color_de
     center_y ??= 0;
     zoom ??= 5;
     max_iter ??= 200;
-    pixel_size ??= 2;
+    pixel_size ??= 3;
     color_depth ??= 20;
     complex_mode ??= true;
     recursive_function_z ??= math.parse("z^2 + c");
@@ -180,15 +180,25 @@ async function drawFractal(canvas, context, parameters, signal) {
                     let c_real = (pixel_x - mid_x) * scale + parameters.center_x;
                     let c_imag = - (pixel_y - mid_y) * scale + parameters.center_y;
                     calcEscapeIterationsComplex(parameters, math.complex(c_real, c_imag)).then(
-                        function (num_iters) {drawPixel(context, parameters, pixel_x, pixel_y, num_iters)},
-                        function (error) {drawPixel(context, parameters, pixel_x, pixel_y, NaN)}
+                        function (num_iters) {
+                            drawPixel(context, parameters, pixel_x, pixel_y, num_iters);
+                        },
+                        function (error) {
+                            drawPixel(context, parameters, pixel_x, pixel_y, NaN);
+                            console.log(error)
+                        }
                     );
                 } else {
                     let cx = (pixel_x - mid_x) * scale + parameters.center_x;
                     let cy = - (pixel_y - mid_y) * scale + parameters.center_y;
                     calcEscapeIterationsReal(parameters, cx, cy).then(
-                        function (num_iters) {drawPixel(context, parameters, pixel_x, pixel_y, num_iters)},
-                        function (error) {drawPixel(context, parameters, pixel_x, pixel_y, NaN)}
+                        function (num_iters) {
+                            drawPixel(context, parameters, pixel_x, pixel_y, num_iters);
+                        },
+                        function (error) {
+                            drawPixel(context, parameters, pixel_x, pixel_y, NaN);
+                            console.log(error)
+                        }
                     );
                 }
             }
