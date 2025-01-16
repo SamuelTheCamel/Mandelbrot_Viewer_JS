@@ -98,6 +98,18 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
     let controller;
 
     let auto_esc_cond = true;
+    const zoom_amount = 0.5; // the amount that one action zooms in or out
+
+    const rec_func_x_div = document.getElementById("rec_func_x_div");
+    const rec_func_y_div = document.getElementById("rec_func_y_div");
+    const rec_func_z_div = document.getElementById("rec_func_z_div");
+
+    const rec_func_x_input = document.getElementById("rec_func_x_input");
+    const rec_func_y_input = document.getElementById("rec_func_y_input");
+    const rec_func_z_input = document.getElementById("rec_func_z_input");
+    const esc_cond_input = document.getElementById("esc_cond_input");
+
+    const textboxes = [rec_func_x_input, rec_func_y_input, rec_func_z_input, esc_cond_input];
 
     async function refreshCanvas() {
         /*
@@ -117,11 +129,6 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
         parameters ??= new DrawParameters();
 
         // update expressions
-
-        const rec_func_x_input = document.getElementById("rec_func_x_input");
-        const rec_func_y_input = document.getElementById("rec_func_y_input");
-        const rec_func_z_input = document.getElementById("rec_func_z_input");
-        const esc_cond_input = document.getElementById("esc_cond_input");
 
         parameters.recursive_function_x = math.parse(rec_func_x_input.value);
         parameters.recursive_function_y = math.parse(rec_func_y_input.value);
@@ -197,9 +204,9 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
             parameters.complex_mode = false;
             this.innerHTML = "Real Mode";
 
-            document.getElementById("rec_func_z_div").setAttribute("style","display:none");
-            document.getElementById("rec_func_x_div").setAttribute("style","display:block");
-            document.getElementById("rec_func_y_div").setAttribute("style","display:block");
+            rec_func_z_div.setAttribute("style","display:none");
+            rec_func_x_div.setAttribute("style","display:block");
+            rec_func_y_div.setAttribute("style","display:block");
             
 
             if (auto_esc_cond) {
@@ -211,9 +218,9 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
             parameters.complex_mode = true;
             this.innerHTML = "Complex Mode";
 
-            document.getElementById("rec_func_z_div").setAttribute("style","display:block");
-            document.getElementById("rec_func_x_div").setAttribute("style","display:none");
-            document.getElementById("rec_func_y_div").setAttribute("style","display:none");
+            rec_func_z_div.setAttribute("style","display:block");
+            rec_func_x_div.setAttribute("style","display:none");
+            rec_func_y_div.setAttribute("style","display:none");
 
             if (auto_esc_cond) {
                 parameters.escape_condition = default_complex_esc_cond;
@@ -294,6 +301,48 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
         refreshCanvas();
 
     })
+
+    addEventListener("keydown", function(event) {
+        // Handle key presses
+
+        const scale = 1 / Math.exp(parameters.zoom);
+
+        switch (event.code) {
+            case "ArrowUp":
+                event.preventDefault()
+                parameters.zoom += 0.5;
+                refreshCanvas();
+                break;
+            case "ArrowDown":
+                event.preventDefault()
+                parameters.zoom -= 0.5;
+                refreshCanvas();
+                break;
+            case "KeyD":
+                parameters.center_x += 50 * scale;
+                refreshCanvas();
+                break;
+            case "KeyA":
+                parameters.center_x -= 50 * scale;
+                refreshCanvas();
+                break;
+            case "KeyW":
+                parameters.center_y += 50 * scale;
+                refreshCanvas();
+                break;
+            case "KeyS":
+                parameters.center_y -= 50 * scale;
+                refreshCanvas();
+                break;
+        }
+    })
+
+    // prevent keyboard use in textboxes from influencing the canvas
+    for (let i in textboxes) {
+        textboxes[i].addEventListener("keydown", function(event) {
+            event.stopPropagation();
+        });
+    }
 
 </script>
 
