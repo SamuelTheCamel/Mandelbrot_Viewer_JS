@@ -2,7 +2,7 @@ Customizable Mandelbrot Viewer
 ==============================
 *by Samuel Voltz*
 
-This is a fully customizable mandelbrot viewer using JavaScript. It can be used to analyze the behavior of any complex function after many repeated iterations. (It can also anaylze 2D iterated functions for real numbers.) Plug in an equation and see what it looks like!
+This is a fully customizable mandelbrot viewer using JavaScript. It can be used to analyze the behavior of any complex function after many repeated iterations. (It can also analyze 2D iterated functions for real numbers.) Plug in an equation and see what it looks like!
 
 (More information will be included in the HTML document)
 
