@@ -440,12 +440,12 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
 
         if (event.deltaY < 0) {
             parameters.zoom += zoom_amount;
-            parameters.center_x += mouse_x * scale_amount - mouse_x;
-            parameters.center_y += mouse_y * scale_amount - mouse_y;
+            parameters.center_x += (mouse_x * scale_amount - mouse_x) / scale_amount;
+            parameters.center_y += (mouse_y * scale_amount - mouse_y) / scale_amount;
         } else {
             parameters.zoom -= zoom_amount;
-            parameters.center_x += mouse_x / scale_amount - mouse_x;
-            parameters.center_y += mouse_y / scale_amount - mouse_y;
+            parameters.center_x += (mouse_x / scale_amount - mouse_x) * scale_amount;
+            parameters.center_y += (mouse_y / scale_amount - mouse_y) * scale_amount;
         }
 
         refreshCanvas();
