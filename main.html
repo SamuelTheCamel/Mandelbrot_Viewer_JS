@@ -87,6 +87,14 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
             <input type="text" id="esc_cond_input" disabled="true" value="abs(z) > 100">
         </div>
 
+        <!--
+        <div class="settings_div">
+            <button id="julia_set_button" title="Changes the recursive funciton to the Julia Set at the center of the screen."> 
+                See Julia Set 
+            </button>
+        </div>
+        -->
+
     </div>
 
 </div>
@@ -227,20 +235,19 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
 
 <div style="text-align: left;">
     <p>
-        If you see grey in your image, that means that something went wrong. Make sure you didn't 
+        <b> Grey Pixels: </b>If you see grey in your image, that means that something went wrong. Make sure you didn't 
         use implied multiplication in your recursive function and that you used the correct syntax.
         (I used math.js to parse expressions. You can find more about their syntax 
         <a href="https://mathjs.org/docs/expressions/syntax.html"> here </a> 
         )
     </p>
     <p>
-        If your image is entirely black, it means that the recursive function you chose likely
+        <b> Black Screen: </b>If your image is entirely black, it means that the recursive function you chose likely
         doesn't diverge. Try a different one.
     </p>
     <p>
-        Pro tip: For more interesting fractals, make sure to end every complex recursive function
-        with +c and every real recursive function with +cx and +cy. Doing anything else with 
-        the starting values usually doesn't change much.
+        <b> What about Julia Sets? </b> In the future, I may add a Julia Set button, but for now, 
+        simply replace all instances of c with the desired starting value (cx and cy for real mode).
     </p>
 </div>
 
@@ -296,10 +303,10 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
         document.getElementById("zoom_value").innerHTML = parameters.zoom;
 
         // update expressions
-        parameters.recursive_function_x = math.parse(rec_func_x_input.value);
-        parameters.recursive_function_y = math.parse(rec_func_y_input.value);
-        parameters.recursive_function_z = math.parse(rec_func_z_input.value);
-        parameters.escape_condition = math.parse(esc_cond_input.value);
+        parameters.recursive_function_x = math.parse(rec_func_x_input.value).compile();
+        parameters.recursive_function_y = math.parse(rec_func_y_input.value).compile();
+        parameters.recursive_function_z = math.parse(rec_func_z_input.value).compile();
+        parameters.escape_condition = math.parse(esc_cond_input.value).compile();
 
         // create parameters for faster draw that runs before the main draw
         const fast_parameters = {...parameters}; // create shallow copy of parameters
@@ -316,7 +323,7 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
         await drawFractal(canvas, context, parameters_copy, signal);
     }
 
-    setTimeout(refreshCanvas, 100)
+    setTimeout(refreshCanvas, 500)
 
     // EVENT HANDLERS
 
@@ -407,14 +414,26 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
     function updateAutoEscCond() {
         if (auto_esc_cond) {
             if (parameters.complex_mode) {
-                parameters.escape_condition = default_complex_esc_cond;
                 document.getElementById("esc_cond_input").value = default_complex_esc_cond;
             } else {
-                parameters.escape_condition = default_real_esc_cond;
                 document.getElementById("esc_cond_input").value = default_real_esc_cond;
             }
         }
     }
+
+    /*
+    document.getElementById("julia_set_button").addEventListener("click", function() {
+        if (parameters.complex_mode) {
+            let c = math.complex(parameters.center_x, parameters.center_y);
+            let expr_tree = math.parse(rec_func_z_input.value);
+            expr_tree.forEach(function (node, path, parent) {
+                if (node.type == "SymbolNode") {
+                    
+                }
+            })
+        }
+    })
+    */
 
     
 

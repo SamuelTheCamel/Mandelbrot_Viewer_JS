@@ -27,8 +27,8 @@ function DrawParameters(center_x, center_y, zoom, max_iter, pixel_size, color_de
     max_iter: the maximum number of iterations of the recursive function before quitting
     pixel_size: the size of each pixel that will be drawn (set to larger value to decrease computation time)
     color_depth: the rate of color change
-    recursive_function: the recursive function represented by a parse tree (use math.parse())
-    escape_condition: when this condition is true, the recursive function will be counted as escaped (use math.parse())
+    recursive_function: the compiled recursive function (created using math.parse().compile())
+    escape_condition: when this condition is true, the recursive function will be counted as escaped (use math.parse()math.parse().compile())
     complex_mode: true for complex variable z, false for real variables x and y
     */
 
@@ -40,13 +40,13 @@ function DrawParameters(center_x, center_y, zoom, max_iter, pixel_size, color_de
     pixel_size ??= 3;
     color_depth ??= 20;
     complex_mode ??= true;
-    recursive_function_z ??= math.parse("z^2 + c");
-    recursive_function_x ??= math.parse("x^2 - y^2 + cx");
-    recursive_function_y ??= math.parse("2*x*y + cy");
+    recursive_function_z ??= math.parse("z^2 + c").compile();
+    recursive_function_x ??= math.parse("x^2 - y^2 + cx").compile();
+    recursive_function_y ??= math.parse("2*x*y + cy").compile();
     if (complex_mode) {
-        escape_condition ??= math.parse("abs(z) > 100");
+        escape_condition ??= math.parse("abs(z) > 100").compile();
     } else {
-        escape_condition ??= math.parse("x^2 + y^2 > 10000");
+        escape_condition ??= math.parse("x^2 + y^2 > 10000").compile();
     }
 
     this.center_x = center_x;
@@ -67,8 +67,7 @@ function calcNextIterComplex(recursive_function, z, c) {
     Performs the recursive function one time (for complex mode)
     Returns z'
     */
-    let eval_node = recursive_function.cloneDeep();
-    return eval_node.evaluate({z:z, c:c});
+    return recursive_function.evaluate({z:z, c:c});
 }
 
 function calcNextIterReal(recursive_function_x, recursive_function_y, x, y, cx, cy) {
@@ -76,21 +75,17 @@ function calcNextIterReal(recursive_function_x, recursive_function_y, x, y, cx, 
     Performs the recursive function one time (for real mode)
     Returns {x', y'}
     */
-    let eval_node_x = recursive_function_x.cloneDeep();
-    let eval_node_y = recursive_function_y.cloneDeep();
-    let new_x = eval_node_x.evaluate({x:x, y:y, cx:cx, cy:cy});
-    let new_y = eval_node_y.evaluate({x:x, y:y, cx:cx, cy:cy});
+    let new_x = recursive_function_x.evaluate({x:x, y:y, cx:cx, cy:cy});
+    let new_y = recursive_function_y.evaluate({x:x, y:y, cx:cx, cy:cy});
     return {x:new_x, y:new_y}
 }
 
 function checkEscapeComplex(escape_condition, z) {
-    let eval_node = escape_condition.cloneDeep();
-    return Boolean(eval_node.evaluate({z:z}));
+    return Boolean(escape_condition.evaluate({z:z}));
 }
 
 function checkEscapeReal(escape_condition, x, y) {
-    let eval_node = escape_condition.cloneDeep();
-    return Boolean(eval_node.evaluate({x:x, y:y}));
+    return Boolean(escape_condition.evaluate({x:x, y:y}));
 }
 
 async function calcEscapeIterationsComplex(parameters, c) {
