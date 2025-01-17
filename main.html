@@ -26,15 +26,20 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
 <hr>
 
 <div>
-    <button id="refresh_button"> Refresh </button>
-    <button id="reset_button"> Reset </button>
-    <button id="stop_button"> Stop </button>
+    <button id="refresh_button" title="Redraws the screen with the desired settings."> 
+        Refresh 
+    </button>
+    <button id="reset_button" title="Reset back to the default view."> 
+        Reset 
+    </button>
+    <button id="stop_button" title="Stops drawing immediately."> 
+        Stop 
+    </button>
 </div>
 
 <hr>
 
 <div>
-    <h2> Settings </h2>
 
     <div style="display: flex; justify-content: center;">
 
@@ -79,14 +84,165 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
         <div class="settings_div">
             <label for="esc_cond_auto_button"> Escape Condition: </label>
             <button id="esc_cond_auto_button"> Auto </button>
-            <input type="text" id="esc_cond_input" disabled="true" value="abs(z) > 2">
+            <input type="text" id="esc_cond_input" disabled="true" value="abs(z) > 100">
         </div>
 
     </div>
 
 </div>
 
+<hr>
 
+<div>
+    <p> 
+        Center Position: <span id="pos_value"> 0 </span> &emsp;
+        Zoom: <span id="zoom_value"> 5 </span>
+    </p>
+</div>
+
+<hr>
+
+<h2> How to Use </h2>
+
+<div style="text-align:left">
+    <p> 
+        Make sure to click the refresh button for changes to take effect. 
+    </p>
+    <p> 
+        <b> Mouse Controls: </b> Use the scroll wheel to zoom in and out. You can also click a 
+        location on the screen to center the screen on that point. 
+    </p>
+    <p> 
+        <b> Keyboard Controls: </b> If you prefer, you can also use keyboard buttons to navigate.
+        Use WASD to move the screen and use the up and down arrows to zoom. 
+    </p>
+    <p> 
+        <b> Refresh Button: </b> Redraws the screen at the current location. Use this when you 
+        change settings. 
+    </p>
+    <p> 
+        <b> Reset Button: </b> Restores the default position and zoom. 
+    </p>
+    <p> 
+        <b> Stop Button: </b> Stops the drawing process immediately. Use this if drawing is 
+        taking a very long time and you want it to stop. 
+    </p>
+    <p> 
+        <b> Pixel Size: </b> Determines the resolution of the image. Smaller pixel sizes take 
+        longer to draw. Increase the pixel size if drawing is too slow on your device. 
+    </p>
+    <p> 
+        <b> Max Iterations: </b> The maximum iterations of the recursive function before quitting 
+        and coloring the pixel black. Decrease to make drawing faster. Increase for higher 
+        accuracy. 
+    </p>
+    <p> 
+        <b> Color Depth: </b> This determines how much the color changes for each additional
+        iteration. Increase for higher contrast. 
+    </p>
+    <p> 
+        <b> Complex/Real Mode: </b> Click this button to switch between real and complex mode.
+        In real mode, there are two variables (x and y) with a recursive formula for each one. 
+    </p>
+    
+    <p> 
+        <b> Recursive Function: </b> It is important to use the correct format for the recursive
+        function. 
+    </p>
+    <ul>
+        <li> 
+            In complex mode, use the variable z for the iterated variable and c for the starting
+            value. 
+        </li>
+        <li> 
+            In real mode, use the variables x and y for the iterated variables and cx and cy for
+            their respective starting values. 
+        </li>
+        <li> 
+            There is no implicit multiplication. You must use an asterisk (*) for multiplcation. 
+        </li>
+        <li> 
+            To learn more about the syntax, please refer to the math.js documentation at 
+            <a href="https://mathjs.org/docs/expressions/syntax.html"> https://mathjs.org/docs/expressions/syntax.html </a> 
+        </li>
+    </ul>
+    
+    <p> 
+        <b> Escape Condition: </b> The escape condition determines when the iterative variable
+        has "escaped", meaning that it has reached a value so large in magnitude that it will
+        likely diverge to infinity.
+    </p>
+    <p>
+        <b> Auto Escape Condition: </b> When on auto-mode, the escape condition will be automatically 
+        set to having a distance of more than 100 units from the origin. By clicking the Auto/Custom
+        button, you can change the escape condition to anything you want.
+    </p>
+</div>
+
+<hr>
+
+<h2> What is this? </h2>
+
+<div style="text-align:left">
+    <p>
+        This is a customizable Mandelbrot Viewer made by Samuel Voltz (me!).
+    </p>
+    <p> 
+        If you're not familiar with the 
+        <a href="https://en.wikipedia.org/wiki/Mandelbrot_set"> Mandelbrot Set </a>, 
+        it involves applying a function (the recursive function) on a variable many, many times 
+        to see what happens. For the Mandelbrot Set, this function happens to be 
+        f(z) = z^2 + c, where z is the iterative variable and c is the starting value. 
+        The Mandelbrot Set is the set of starting complex values that do not diverge to infinity. 
+    </p>
+    <p>
+        Mandelbrot Viewers allow us to have a visual representation of not only the Mandelbrot Set,
+        but also the behavior of the Mandelbrot Set's recursive function. The computer calculates
+        many iterations of the recursive function until one of two things happens. Either the
+        function blows up to large number (it "escapes") or it remains small until the computer
+        reaches its maximum iteration limit. The amount of iterations it takes for it to escape 
+        determines the color of each pixel. If the maximum iteration limit is reached, the pixel
+        is colored black, indicating that it is likely within the Mandelbrot Set.
+    </p>
+    <p>
+        While the Mandelbrot Set is very cool, there are also myriads of other fractals that can 
+        be generated with other recursive functions. As such, I created this web app to allow 
+        the user to explore these possibilities.
+    </p>
+    <p>
+        This program also has a "real mode" which has two real-valued iterative variables instead
+        of one complex iterative variable. This allows for a lot more possibilities. Note that 
+        these variables are called x and y, and their starting values are cx and cy. x' and y'
+        are the next iteration of these variables.
+    </p>
+    <p>
+        The coloring scheme I use uses the iteration count (multiplied by the "color depth") to
+        determine the hue. Different coloring schemes exist, but I decided to keep things simple.
+    </p>
+</div>
+
+<hr>
+
+<h2> Why does my image look boring?</h2>
+
+<div style="text-align: left;">
+    <p>
+        If you see grey in your image, that means that something went wrong. Make sure you didn't 
+        use implied multiplication in your recursive function and that you used the correct syntax.
+        (I used math.js to parse expressions. You can find more about their syntax 
+        <a href="https://mathjs.org/docs/expressions/syntax.html"> here </a> 
+        )
+    </p>
+    <p>
+        If your image is entirely black, it means that the recursive function you chose likely
+        doesn't diverge. Try a different one.
+    </p>
+    <p>
+        Pro tip: For more interesting fractals, make sure to end every complex recursive function
+        with +c and every real recursive function with +cx and +cy. Doing anything else with 
+        the starting values usually doesn't change much.
+    </p>
+</div>
 
 <script>
     
@@ -99,6 +255,9 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
 
     let auto_esc_cond = true;
     const zoom_amount = 0.5; // the amount that one action zooms in or out
+
+    const default_complex_esc_cond = "abs(z) > 100";
+    const default_real_esc_cond = "x^2 + y^2 > 10000";
 
     const rec_func_x_div = document.getElementById("rec_func_x_div");
     const rec_func_y_div = document.getElementById("rec_func_y_div");
@@ -128,8 +287,15 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
 
         parameters ??= new DrawParameters();
 
-        // update expressions
+        // update position and zoom info
+        if (parameters.complex_mode) {
+            document.getElementById("pos_value").innerHTML = String(math.complex(parameters.center_x, parameters.center_y));
+        } else {
+            document.getElementById("pos_value").innerHTML = "(" + parameters.center_x + ", " + parameters.center_y + ")";
+        }
+        document.getElementById("zoom_value").innerHTML = parameters.zoom;
 
+        // update expressions
         parameters.recursive_function_x = math.parse(rec_func_x_input.value);
         parameters.recursive_function_y = math.parse(rec_func_y_input.value);
         parameters.recursive_function_z = math.parse(rec_func_z_input.value);
@@ -196,9 +362,6 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
 
     document.getElementById("mode_button").addEventListener("click", function() {
 
-        const default_complex_esc_cond = "abs(z) > 100";
-        const default_real_esc_cond = "x^2 + y^2 > 10000";
-
         if (parameters.complex_mode) {
 
             parameters.complex_mode = false;
@@ -207,12 +370,6 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
             rec_func_z_div.setAttribute("style","display:none");
             rec_func_x_div.setAttribute("style","display:block");
             rec_func_y_div.setAttribute("style","display:block");
-            
-
-            if (auto_esc_cond) {
-                parameters.escape_condition = default_real_esc_cond;
-                document.getElementById("esc_cond_input").value = default_real_esc_cond;
-            }
 
         } else {
             parameters.complex_mode = true;
@@ -221,12 +378,10 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
             rec_func_z_div.setAttribute("style","display:block");
             rec_func_x_div.setAttribute("style","display:none");
             rec_func_y_div.setAttribute("style","display:none");
-
-            if (auto_esc_cond) {
-                parameters.escape_condition = default_complex_esc_cond;
-                document.getElementById("esc_cond_input").value = default_complex_esc_cond;
-            }
         }
+
+        updateAutoEscCond();
+
     })
 
     document.getElementById("esc_cond_auto_button").addEventListener("click", function() {
@@ -244,8 +399,24 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
 
             document.getElementById("esc_cond_input").disabled = true;
 
+            updateAutoEscCond();
+
         }
     })
+
+    function updateAutoEscCond() {
+        if (auto_esc_cond) {
+            if (parameters.complex_mode) {
+                parameters.escape_condition = default_complex_esc_cond;
+                document.getElementById("esc_cond_input").value = default_complex_esc_cond;
+            } else {
+                parameters.escape_condition = default_real_esc_cond;
+                document.getElementById("esc_cond_input").value = default_real_esc_cond;
+            }
+        }
+    }
+
+    
 
     canvas.addEventListener("wheel", function(event) {
         // Zooms in and out when the user spins the scroll wheel

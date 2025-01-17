@@ -44,9 +44,9 @@ function DrawParameters(center_x, center_y, zoom, max_iter, pixel_size, color_de
     recursive_function_x ??= math.parse("x^2 - y^2 + cx");
     recursive_function_y ??= math.parse("2*x*y + cy");
     if (complex_mode) {
-        escape_condition ??= math.parse("abs(z) > 2");
+        escape_condition ??= math.parse("abs(z) > 100");
     } else {
-        escape_condition ??= math.parse("x^2 + y^2 > 4");
+        escape_condition ??= math.parse("x^2 + y^2 > 10000");
     }
 
     this.center_x = center_x;
