@@ -7,6 +7,9 @@ math.js
 */
 
 function loadScript(src) {
+    /*
+    Loads a script from the given location (creates a script HTML element)
+    */
     const script_elem = document.createElement("script");
     script_elem.src = src;
     script_elem.onerror = function() {
@@ -27,8 +30,8 @@ function DrawParameters(center_x, center_y, zoom, max_iter, pixel_size, color_de
     max_iter: the maximum number of iterations of the recursive function before quitting
     pixel_size: the size of each pixel that will be drawn (set to larger value to decrease computation time)
     color_depth: the rate of color change
-    recursive_function: the compiled recursive function (created using math.parse().compile())
-    escape_condition: when this condition is true, the recursive function will be counted as escaped (use math.parse()math.parse().compile())
+    recursive_function: the compiled recursive function (created using math.parse("...").compile())
+    escape_condition: when this condition is true, the recursive function will be counted as escaped (use math.parse("...").compile())
     complex_mode: true for complex variable z, false for real variables x and y
     */
 
@@ -81,10 +84,16 @@ function calcNextIterReal(recursive_function_x, recursive_function_y, x, y, cx, 
 }
 
 function checkEscapeComplex(escape_condition, z) {
+    /*
+    Checks if z satisfies the escape condition
+    */
     return Boolean(escape_condition.evaluate({z:z}));
 }
 
 function checkEscapeReal(escape_condition, x, y) {
+    /*
+    Checks if the given values for x and y satisfy the escape condition
+    */
     return Boolean(escape_condition.evaluate({x:x, y:y}));
 }
 
@@ -131,7 +140,12 @@ async function calcEscapeIterationsReal(parameters, cx, cy) {
 
 function drawPixel(context, parameters, pixel_x, pixel_y, num_iters) {
     /*
-    Draws a single pixel at the given location.
+    Draws a pixel on the canvas at the given location with the given number of iterations.
+    num_iters:
+        = finite number if recursive funciton escaped
+        = infinity if recursive function did not escape
+        = NaN if an error occured
+    context: the context of the canvas (use canvas.getContext("2d"))
     */
 
     if (isFinite(num_iters)) {
@@ -199,9 +213,4 @@ async function drawFractal(canvas, context, parameters, signal) {
             }
         });
     }
-};
-
-function testFunction() {
-    // TODO: delete this
-    alert(math.evaluate("2+2"));
 };
