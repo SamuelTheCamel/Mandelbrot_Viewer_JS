@@ -21,48 +21,49 @@ function loadScript(src) {
 // Load libraries
 loadScript("https://unpkg.com/mathjs@14.0.1/lib/browser/math.js");
 
-function DrawParameters(center_x, center_y, zoom, max_iter, pixel_size, color_depth, complex_mode, 
-    recursive_function_z, recursive_function_x, recursive_function_y, escape_condition) {
-    /*
-    Constructs an object used to store parameters for drawing the Mandelbrot Set
-    center_x, center_y: set the coordinates at the center of the canvas
-    zoom: determines how far zoomed in the image is (logarithmic scale)
-    max_iter: the maximum number of iterations of the recursive function before quitting
-    pixel_size: the size of each pixel that will be drawn (set to larger value to decrease computation time)
-    color_depth: the rate of color change
-    recursive_function: the compiled recursive function (created using math.parse("...").compile())
-    escape_condition: when this condition is true, the recursive function will be counted as escaped (use math.parse("...").compile())
-    complex_mode: true for complex variable z, false for real variables x and y
-    */
+class DrawParameters {
+    constructor(center_x, center_y, zoom, max_iter, pixel_size, color_depth, complex_mode,
+        recursive_function_z, recursive_function_x, recursive_function_y, escape_condition) {
+        /*
+        Constructs an object used to store parameters for drawing the Mandelbrot Set
+        center_x, center_y: set the coordinates at the center of the canvas
+        zoom: determines how far zoomed in the image is (logarithmic scale)
+        max_iter: the maximum number of iterations of the recursive function before quitting
+        pixel_size: the size of each pixel that will be drawn (set to larger value to decrease computation time)
+        color_depth: the rate of color change
+        recursive_function: the compiled recursive function (created using math.parse("...").compile())
+        escape_condition: when this condition is true, the recursive function will be counted as escaped (use math.parse("...").compile())
+        complex_mode: true for complex variable z, false for real variables x and y
+        */
+        // Default values
+        center_x ??= 0;
+        center_y ??= 0;
+        zoom ??= 5;
+        max_iter ??= 200;
+        pixel_size ??= 3;
+        color_depth ??= 20;
+        complex_mode ??= true;
+        recursive_function_z ??= math.parse("z^2 + c").compile();
+        recursive_function_x ??= math.parse("x^2 - y^2 + cx").compile();
+        recursive_function_y ??= math.parse("2*x*y + cy").compile();
+        if (complex_mode) {
+            escape_condition ??= math.parse("abs(z) > 100").compile();
+        } else {
+            escape_condition ??= math.parse("x^2 + y^2 > 10000").compile();
+        }
 
-    // Default values
-    center_x ??= 0;
-    center_y ??= 0;
-    zoom ??= 5;
-    max_iter ??= 200;
-    pixel_size ??= 3;
-    color_depth ??= 20;
-    complex_mode ??= true;
-    recursive_function_z ??= math.parse("z^2 + c").compile();
-    recursive_function_x ??= math.parse("x^2 - y^2 + cx").compile();
-    recursive_function_y ??= math.parse("2*x*y + cy").compile();
-    if (complex_mode) {
-        escape_condition ??= math.parse("abs(z) > 100").compile();
-    } else {
-        escape_condition ??= math.parse("x^2 + y^2 > 10000").compile();
+        this.center_x = center_x;
+        this.center_y = center_y;
+        this.zoom = zoom;
+        this.max_iter = max_iter;
+        this.pixel_size = pixel_size;
+        this.color_depth = color_depth;
+        this.recursive_function_z = recursive_function_z;
+        this.recursive_function_x = recursive_function_x;
+        this.recursive_function_y = recursive_function_y;
+        this.escape_condition = escape_condition;
+        this.complex_mode = complex_mode;
     }
-
-    this.center_x = center_x;
-    this.center_y = center_y;
-    this.zoom = zoom;
-    this.max_iter = max_iter;
-    this.pixel_size = pixel_size;
-    this.color_depth = color_depth;
-    this.recursive_function_z = recursive_function_z;
-    this.recursive_function_x = recursive_function_x;
-    this.recursive_function_y = recursive_function_y;
-    this.escape_condition = escape_condition;
-    this.complex_mode = complex_mode;
 };
 
 function calcNextIterComplex(recursive_function, z, c) {

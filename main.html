@@ -302,6 +302,7 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
             parameters ??= new DrawParameters();
         } catch (error) {
             if (error instanceof ReferenceError) {
+                console.log(error);
                 setTimeout(refreshCanvas, 500); // refresh automatically if other scripts have not loaded yet
             } else {
                 alert("Unexpected error (could not create parameters): " + error);
