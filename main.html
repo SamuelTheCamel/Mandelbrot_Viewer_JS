@@ -344,13 +344,17 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
         if (parameters.max_iter > 100) {
             fast_parameters.max_iter = 100;
         }
+        
+        const parameters_copy = {...parameters}; // create copy of parameters to prevent issues from the user changing settings during drawing
 
         if (parameters.pixel_size < 6) {
-            await drawFractal(canvas, context, fast_parameters, signal); // draw low quality version first
+            // draw low quality version first, then draw desired settings once completed
+            drawFractal(canvas, context, fast_parameters, signal, function() {
+                drawFractal(canvas, context, parameters_copy, signal); 
+            }); 
+        } else {
+            drawFractal(canvas, context, parameters_copy, signal); 
         }
-
-        const parameters_copy = {...parameters}; // create copy of parameters to prevent issues from the user changing settings during drawing
-        await drawFractal(canvas, context, parameters_copy, signal);
     }
 
     function parseInput(attribute, textbox, name) {

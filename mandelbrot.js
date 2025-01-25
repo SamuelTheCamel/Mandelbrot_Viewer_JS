@@ -163,13 +163,25 @@ function drawPixel(context, parameters, pixel_x, pixel_y, num_iters) {
     context.fillRect(pixel_x, pixel_y, parameters.pixel_size, parameters.pixel_size);
 }
 
-async function drawFractal(canvas, context, parameters, signal) {
+async function drawFractal(canvas, context, parameters, abort_signal, callback, _start_x, _start_y) {
     /*
     Draws the desired fractal on the given canvas with the given context.
-    To get the context of a canvas, use canvas.getContext("2d").
-    The context must be 2D.
-    Signal is used for aborting the process.
+
+    context: the context of the given canvas (use canvas.getContext("2d"))
+    parameters: a DrawParameters instance that specifies the recursive function, location, zoom, etc.
+    abort_signal: an abort signal
+    callback: function that will be called once completed (will not be called if aborted)
+
+    DO NOT USE THESE PARAMETERS:
+    _start_x: the starting value of pixel_x
+    _start_y: the starting value of pixel_y
     */
+
+    _start_x ??= 0;
+    _start_y ??= 0;
+
+    let pixel_x = _start_x;
+    let pixel_y = _start_y;
 
     const scale = 1 / Math.exp(parameters.zoom);
 
@@ -178,43 +190,62 @@ async function drawFractal(canvas, context, parameters, signal) {
     const mid_x = (canvas.width) / 2;
     const mid_y = (canvas.height) / 2;
 
-    for (let pixel_y = 0; pixel_y < height; pixel_y += parameters.pixel_size) {
-        requestIdleCallback(function() { // allows browser to render previously completed line
-            for (let pixel_x = 0; pixel_x < width; pixel_x += parameters.pixel_size) {
+    const start_time = Date.now()
 
-                if (signal.aborted) { // check for abort signal
-                    return
-                }
+    while (pixel_y < height) {
+        while (pixel_x < width) {
 
-                if (parameters.complex_mode) {
-
-                    let c_real = (pixel_x - mid_x) * scale + parameters.center_x;
-                    let c_imag = - (pixel_y - mid_y) * scale + parameters.center_y;
-                    let num_iters = NaN;
-
-                    try {
-                        num_iters = calcEscapeIterationsComplex(parameters, math.complex(c_real, c_imag));
-                    } catch (error) {
-                        showErrorMessage("Error in computation: " + String(error));
-                    }
-                    drawPixel(context, parameters, pixel_x, pixel_y, num_iters);
-
-                } else {
-
-                    let cx = (pixel_x - mid_x) * scale + parameters.center_x;
-                    let cy = - (pixel_y - mid_y) * scale + parameters.center_y;
-                    let num_iters = NaN;
-
-                    try {
-                        num_iters = calcEscapeIterationsReal(parameters, cx, cy);
-                    } catch (error) {
-                        showErrorMessage("Error in computation: " + String(error));
-                    }
-                    drawPixel(context, parameters, pixel_x, pixel_y, num_iters);
-
-                }
+            if (abort_signal != null && abort_signal.aborted) { // check for abort signal
+                return
             }
-        });
+
+            if (parameters.complex_mode) {
+
+                let c_real = (pixel_x - mid_x) * scale + parameters.center_x;
+                let c_imag = - (pixel_y - mid_y) * scale + parameters.center_y;
+                let num_iters = NaN;
+
+                try {
+                    num_iters = calcEscapeIterationsComplex(parameters, math.complex(c_real, c_imag));
+                } catch (error) {
+                    showErrorMessage("Error in computation: " + String(error));
+                }
+                drawPixel(context, parameters, pixel_x, pixel_y, num_iters);
+
+            } else {
+
+                let cx = (pixel_x - mid_x) * scale + parameters.center_x;
+                let cy = - (pixel_y - mid_y) * scale + parameters.center_y;
+                let num_iters = NaN;
+
+                try {
+                    num_iters = calcEscapeIterationsReal(parameters, cx, cy);
+                } catch (error) {
+                    showErrorMessage("Error in computation: " + String(error));
+                }
+                drawPixel(context, parameters, pixel_x, pixel_y, num_iters);
+
+            }
+            
+            pixel_x += parameters.pixel_size;
+        }
+
+        // allow website to render in between lines
+        if (Date.now() - start_time > 33) {
+            requestIdleCallback(function() {
+                drawFractal(canvas, context, parameters, abort_signal, callback, pixel_x, pixel_y);
+            });
+            return
+        }
+
+        pixel_y += parameters.pixel_size;
+        pixel_x = 0;
+    }
+
+    // call callback function once complete
+
+    if (callback != null) {
+        callback();
     }
 };
 
