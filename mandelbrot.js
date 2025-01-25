@@ -194,7 +194,7 @@ async function drawFractal(canvas, context, parameters, signal) {
                         },
                         function (error) {
                             drawPixel(context, parameters, pixel_x, pixel_y, NaN);
-                            console.log(error)
+                            showErrorMessage("Error in computation: " + String(error));
                         }
                     );
                 } else {
@@ -206,7 +206,7 @@ async function drawFractal(canvas, context, parameters, signal) {
                         },
                         function (error) {
                             drawPixel(context, parameters, pixel_x, pixel_y, NaN);
-                            console.log(error)
+                            showErrorMessage("Error in computation: " + String(error));
                         }
                     );
                 }
@@ -214,3 +214,11 @@ async function drawFractal(canvas, context, parameters, signal) {
         });
     }
 };
+
+function showErrorMessage(message) {
+    /*
+    Displays an error message to the user in the HTML document
+    */
+    document.getElementById("error_message").innerHTML = message;
+    document.getElementById("error_message").setAttribute("style", "display:block; color:red");
+}

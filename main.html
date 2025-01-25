@@ -106,6 +106,9 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
         Center Position: <span id="pos_value"> 0 </span> &emsp;
         Zoom: <span id="zoom_value"> 5 </span>
     </p>
+    <p style="display:none" id="error_message">
+
+    </p>
 </div>
 
 <hr>
@@ -288,11 +291,23 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
             controller.abort();
         }
 
+        // hide error message
+        document.getElementById("error_message").setAttribute("style", "display:none")
+
         // allow function to be aborted
         controller = new AbortController();
         const signal = controller.signal;
 
-        parameters ??= new DrawParameters();
+        try {
+            parameters ??= new DrawParameters();
+        } catch (error) {
+            if (error instanceof ReferenceError) {
+                setTimeout(refreshCanvas, 500); // refresh automatically if other scripts have not loaded yet
+            } else {
+                alert("Unexpected error (could not create parameters): " + error);
+            }
+        }
+        
 
         // update position and zoom info
         if (parameters.complex_mode) {
@@ -303,10 +318,24 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
         document.getElementById("zoom_value").innerHTML = parameters.zoom;
 
         // update expressions
+        /*
         parameters.recursive_function_x = math.parse(rec_func_x_input.value).compile();
         parameters.recursive_function_y = math.parse(rec_func_y_input.value).compile();
         parameters.recursive_function_z = math.parse(rec_func_z_input.value).compile();
         parameters.escape_condition = math.parse(esc_cond_input.value).compile();
+        */
+
+        let successful = true;
+
+        successful &&= parseInput("recursive_function_x", rec_func_x_input, "Recursive Function for x'");
+        successful &&= parseInput("recursive_function_y", rec_func_y_input, "Recursive Function for y'");
+        successful &&= parseInput("recursive_function_z", rec_func_z_input, "Recursive Function");
+        successful &&= parseInput("escape_condition", esc_cond_input, "Escape Condition");
+
+        // if errors occur, do nothing
+        if (successful == false) {
+            return;
+        }
 
         // create parameters for faster draw that runs before the main draw
         const fast_parameters = {...parameters}; // create shallow copy of parameters
@@ -321,6 +350,30 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
 
         const parameters_copy = {...parameters}; // create copy of parameters to prevent issues from the user changing settings during drawing
         await drawFractal(canvas, context, parameters_copy, signal);
+    }
+
+    function parseInput(attribute, textbox, name) {
+        /*
+        Compiles the input from the textbox and updates the given attribute of parameters.
+        In the case of an error, an error message will be alerted to the user with the given name for the textbox.
+        Returns true if successful and false if unsuccessful.
+        */
+        
+        let compiled_expr;
+        try {
+            compiled_expr = math.parse(textbox.value).compile();
+        } catch (error) {
+            if (error instanceof SyntaxError) {
+                alert("Invalid Syntax in " + name + ": " + error.message);
+            } else {
+                alert("Unknown Error in " + name + ": " + error);
+            }
+            return false;
+        }
+
+        parameters[attribute] = compiled_expr;
+        return true;
+
     }
 
     setTimeout(refreshCanvas, 500)
