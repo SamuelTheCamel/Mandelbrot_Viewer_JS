@@ -98,7 +98,7 @@ function checkEscapeReal(escape_condition, x, y) {
     return Boolean(escape_condition.evaluate({x:x, y:y}));
 }
 
-async function calcEscapeIterationsComplex(parameters, c) {
+function calcEscapeIterationsComplex(parameters, c) {
     /*
     Calculates the number of iterations to escape from the given starting value c. (for complex mode)
     If it escapes, this returns the number of iterations (a positive integer).
@@ -117,7 +117,7 @@ async function calcEscapeIterationsComplex(parameters, c) {
     }
 }
 
-async function calcEscapeIterationsReal(parameters, cx, cy) {
+function calcEscapeIterationsReal(parameters, cx, cy) {
     /*
     Calculates the number of iterations to escape from the given starting point (cx, cy). (for real mode)
     If it escapes, this returns the number of iterations (a positive integer).
@@ -187,29 +187,31 @@ async function drawFractal(canvas, context, parameters, signal) {
                 }
 
                 if (parameters.complex_mode) {
+
                     let c_real = (pixel_x - mid_x) * scale + parameters.center_x;
                     let c_imag = - (pixel_y - mid_y) * scale + parameters.center_y;
-                    calcEscapeIterationsComplex(parameters, math.complex(c_real, c_imag)).then(
-                        function (num_iters) {
-                            drawPixel(context, parameters, pixel_x, pixel_y, num_iters);
-                        },
-                        function (error) {
-                            drawPixel(context, parameters, pixel_x, pixel_y, NaN);
-                            showErrorMessage("Error in computation: " + String(error));
-                        }
-                    );
+                    let num_iters = NaN;
+
+                    try {
+                        num_iters = calcEscapeIterationsComplex(parameters, math.complex(c_real, c_imag));
+                    } catch (error) {
+                        showErrorMessage("Error in computation: " + String(error));
+                    }
+                    drawPixel(context, parameters, pixel_x, pixel_y, num_iters);
+
                 } else {
+
                     let cx = (pixel_x - mid_x) * scale + parameters.center_x;
                     let cy = - (pixel_y - mid_y) * scale + parameters.center_y;
-                    calcEscapeIterationsReal(parameters, cx, cy).then(
-                        function (num_iters) {
-                            drawPixel(context, parameters, pixel_x, pixel_y, num_iters);
-                        },
-                        function (error) {
-                            drawPixel(context, parameters, pixel_x, pixel_y, NaN);
-                            showErrorMessage("Error in computation: " + String(error));
-                        }
-                    );
+                    let num_iters = NaN;
+
+                    try {
+                        num_iters = calcEscapeIterationsReal(parameters, cx, cy);
+                    } catch (error) {
+                        showErrorMessage("Error in computation: " + String(error));
+                    }
+                    drawPixel(context, parameters, pixel_x, pixel_y, num_iters);
+
                 }
             }
         });
