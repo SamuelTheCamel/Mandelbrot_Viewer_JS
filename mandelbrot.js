@@ -229,6 +229,9 @@ async function drawFractal(canvas, context, parameters, abort_signal, callback, 
             
             pixel_x += parameters.pixel_size;
         }
+        
+        pixel_y += parameters.pixel_size;
+        pixel_x = 0;
 
         // allow website to render in between lines
         if (Date.now() - start_time > 33) {
@@ -237,9 +240,6 @@ async function drawFractal(canvas, context, parameters, abort_signal, callback, 
             });
             return
         }
-
-        pixel_y += parameters.pixel_size;
-        pixel_x = 0;
     }
 
     // call callback function once complete
