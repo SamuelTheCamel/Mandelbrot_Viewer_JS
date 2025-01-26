@@ -86,16 +86,16 @@ function calcNextIterReal(recursive_function_x, recursive_function_y, x, y, cx, 
 
 function checkEscapeComplex(escape_condition, z) {
     /*
-    Checks if z satisfies the escape condition
+    Checks if z satisfies the escape condition or is Infinity / NaN
     */
-    return Boolean(escape_condition.evaluate({z:z}));
+    return Boolean(escape_condition.evaluate({z:z}) || !isFinite(math.abs(z)));
 }
 
 function checkEscapeReal(escape_condition, x, y) {
     /*
-    Checks if the given values for x and y satisfy the escape condition
+    Checks if the given values for x and y satisfy the escape condition or are Infinity / NaN
     */
-    return Boolean(escape_condition.evaluate({x:x, y:y}));
+    return Boolean(escape_condition.evaluate({x:x, y:y}) || !isFinite(x) || !isFinite(y));
 }
 
 function calcEscapeIterationsComplex(parameters, c) {
