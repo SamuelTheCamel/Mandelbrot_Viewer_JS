@@ -10,7 +10,7 @@
 <style>
 body {font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align:center}
 h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;}
-.settings_div {margin: 5px;}
+.settings_div {margin-top: 5px; margin-bottom: 5px; margin-left: 10px; margin-right: 10px}
 </style>
 
 <script src="mandelbrot.js"></script>
@@ -57,6 +57,13 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
             <label for="color_depth_slider"> Color Depth: <span id="color_depth_value"> 20 </span></label> <br>
             <input type="range" min="1" max="100" value="20" class="slider" id="color_depth_slider">
         </div>
+
+        <!--
+        <div class="setting_div">
+            <input type="checkbox" id="high_precision_cb">
+            <label for="high_precision_cb"> High Precision </label>
+        </div>
+        -->
 
     </div>
 
@@ -494,7 +501,16 @@ h1, h2, h3 {font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', '
     })
     */
 
-    
+    /*
+    document.getElementById("high_precision_cb").addEventListener("click", function() {
+        if (this.checked) {
+            math.config({number: 'BigNumber'}); // use mathjs BigNumber class
+        } else {
+            math.config({number: 'number'}); // restore regular number class
+        }
+    })
+    */
+
 
     canvas.addEventListener("wheel", function(event) {
         // Zooms in and out when the user spins the scroll wheel
