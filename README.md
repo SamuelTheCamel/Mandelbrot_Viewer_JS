@@ -8,7 +8,7 @@ This is a fully customizable mandelbrot viewer using JavaScript. It can be used 
 
 To run on your computer natively, open main.html using your browser. **(You will need an internet connection.)**
 
-**WARNING**: Probably does not work on Safari and iOS-based browsers as of January 2025
-
 Libraries used:
 - math.js (not included in repo, will automatically load from the internet)
+
+If it does not work in your browser, try using Chrome.

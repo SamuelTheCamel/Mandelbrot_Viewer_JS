@@ -231,7 +231,7 @@ async function drawFractal(canvas, context, parameters, abort_signal, callback, 
 
             // allow website to render in between lines
             if (Date.now() - start_time > 16) {
-                requestIdleCallback(function() {
+                requestAnimationFrame(function(timestamp) {
                     drawFractal(canvas, context, parameters, abort_signal, callback, pixel_x, pixel_y);
                 });
                 return
